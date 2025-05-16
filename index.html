@@ -6,273 +6,241 @@
   <title>Abstract Noun Challenge</title>
   <style>
     * {
+      box-sizing: border-box;
+      font-family: sans-serif;
+    }
+    html, body {
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-
-    html, body {
       height: 100%;
-      overflow: hidden;
+      background: #f5f5f5;
     }
-
-    body {
-      background-color: #f5f5f5;
-      color: #333;
-      padding: 20px;
-    }
-
     .container {
       max-width: 800px;
-      margin: 0 auto;
-      background-color: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      margin: auto;
       padding: 20px;
-      max-height: 100%;
-      overflow: auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-
-    header {
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
     h1 {
+      text-align: center;
       color: #3f51b5;
-      font-size: 24px;
-      margin-bottom: 5px;
     }
-
-    .subtitle {
-      color: #ff9800;
-      font-size: 14px;
-    }
-
-    .controls, .start-button {
+    .controls {
       display: flex;
       justify-content: center;
       gap: 10px;
       margin-bottom: 20px;
     }
-
     button {
-      padding: 8px 15px;
+      padding: 10px 15px;
       border: none;
-      border-radius: 20px;
-      background-color: #3f51b5;
+      border-radius: 5px;
+      background: #3f51b5;
       color: white;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .refresh-btn {
-      background-color: #009688;
-    }
-
-    .quit-btn {
-      background-color: #f44336;
-    }
-
-    .score, .timer {
       font-weight: bold;
-      font-size: 18px;
-      text-align: center;
-      margin-bottom: 10px;
+      cursor: pointer;
     }
-
+    .score-timer {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding: 0 10px;
+    }
     .feedback {
-      min-height: 40px;
       text-align: center;
-      font-style: italic;
       margin-bottom: 10px;
+      font-style: italic;
+      color: #555;
     }
-
     .words-container {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
       margin-bottom: 20px;
-      min-height: 60px;
       justify-content: center;
     }
-
     .word {
-      padding: 8px 15px;
-      background-color: white;
-      border: 1px solid #ddd;
+      padding: 8px 12px;
+      background: #eee;
       border-radius: 20px;
-      cursor: move;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      cursor: grab;
+      border: 1px solid #ccc;
     }
-
+    .game-area {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
     .dropzone {
+      width: 48%;
+      min-height: 150px;
       border: 2px dashed #ccc;
       border-radius: 8px;
-      min-height: 100px;
-      padding: 15px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 45%;
+      padding: 10px;
+      background: #fafafa;
     }
-
-    .dropzone .drop-content {
+    .dropzone h3 {
+      text-align: center;
+      margin-top: 0;
+    }
+    .dropped-words {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      justify-content: center;
       margin-top: 10px;
-    }
-
-    .game-area {
-      display: flex;
-      justify-content: space-around;
-      flex-wrap: wrap;
-      gap: 10px;
+      justify-content: center;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Abstract Noun Challenge</h1>
-      <p class="subtitle">Sort the words into Abstract or Not Abstract</p>
-    </header>
-
-    <div class="score" id="score">Score: 0</div>
-    <div class="timer" id="timer">Time: 60s</div>
-    <div class="feedback" id="feedback">Click start to begin!</div>
-
-    <div class="start-button">
-      <button id="start-btn">Start Game</button>
-      <button id="pause-btn">Pause Game</button>
-      <button id="resume-btn" disabled>Resume Game</button>
+<div class="container">
+  <h1>Abstract Noun Challenge</h1>
+  <div class="score-timer">
+    <div id="score">Score: 0</div>
+    <div id="timer">Time: 60s</div>
+  </div>
+  <div class="feedback" id="feedback">Click Start to begin!</div>
+  <div class="controls">
+    <button id="startBtn">Start</button>
+    <button id="pauseBtn" disabled>Pause</button>
+    <button id="resumeBtn" disabled>Resume</button>
+    <button id="stopBtn" disabled>Stop</button>
+  </div>
+  <div class="words-container" id="words"></div>
+  <div class="game-area">
+    <div class="dropzone" id="abstractZone">
+      <h3>Abstract Nouns</h3>
+      <div class="dropped-words" id="abstractWords"></div>
     </div>
-
-    <div class="words-container" id="words"></div>
-
-    <div class="game-area">
-      <div class="dropzone" id="abstract">
-        <h3>Abstract Nouns</h3>
-        <div class="drop-content" id="abstract-zone"></div>
-      </div>
-      <div class="dropzone" id="concrete">
-        <h3>Not Abstract</h3>
-        <div class="drop-content" id="concrete-zone"></div>
-      </div>
+    <div class="dropzone" id="concreteZone">
+      <h3>Not Abstract</h3>
+      <div class="dropped-words" id="concreteWords"></div>
     </div>
   </div>
+</div>
 
-  <script>
-    const abstractWords = ['Love', 'Justice', 'Freedom', 'Anger'];
-    const concreteWords = ['Chair', 'Desk', 'Dog', 'Book'];
-    const allWords = [...abstractWords.map(w => ({ text: w, type: 'abstract' })), ...concreteWords.map(w => ({ text: w, type: 'concrete' }))].sort(() => 0.5 - Math.random());
+<script>
+const abstractWords = ['Love', 'Justice', 'Freedom', 'Hope'];
+const concreteWords = ['Chair', 'Dog', 'Book', 'Window'];
+let allWords = [];
+let score = 0;
+let time = 60;
+let timer = null;
+let isPaused = false;
 
-    let score = 0;
-    let time = 60;
-    let timer;
-    let timerRunning = false;
+const scoreDisplay = document.getElementById('score');
+const timerDisplay = document.getElementById('timer');
+const feedback = document.getElementById('feedback');
+const wordsContainer = document.getElementById('words');
+const abstractZone = document.getElementById('abstractWords');
+const concreteZone = document.getElementById('concreteWords');
 
-    const wordsContainer = document.getElementById('words');
-    const abstractZone = document.getElementById('abstract-zone');
-    const concreteZone = document.getElementById('concrete-zone');
-    const feedback = document.getElementById('feedback');
-    const scoreDisplay = document.getElementById('score');
-    const timerDisplay = document.getElementById('timer');
-    const startBtn = document.getElementById('start-btn');
-    const pauseBtn = document.getElementById('pause-btn');
-    const resumeBtn = document.getElementById('resume-btn');
+const startBtn = document.getElementById('startBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const resumeBtn = document.getElementById('resumeBtn');
+const stopBtn = document.getElementById('stopBtn');
 
-    function setupGame() {
-      wordsContainer.innerHTML = '';
-      abstractZone.innerHTML = '';
-      concreteZone.innerHTML = '';
+function initializeGame() {
+  allWords = [...abstractWords.map(w => ({ text: w, type: 'abstract' })),
+              ...concreteWords.map(w => ({ text: w, type: 'concrete' }))].sort(() => 0.5 - Math.random());
+  wordsContainer.innerHTML = '';
+  abstractZone.innerHTML = '';
+  concreteZone.innerHTML = '';
+  allWords.forEach(word => {
+    const el = document.createElement('div');
+    el.className = 'word';
+    el.textContent = word.text;
+    el.draggable = true;
+    el.dataset.type = word.type;
+    el.addEventListener('dragstart', e => e.dataTransfer.setData('text', JSON.stringify(word)));
+    wordsContainer.appendChild(el);
+  });
+}
 
-      allWords.forEach(word => {
-        const div = document.createElement('div');
-        div.className = 'word';
-        div.textContent = word.text;
-        div.draggable = true;
-        div.dataset.type = word.type;
-        div.addEventListener('dragstart', e => e.dataTransfer.setData('text', JSON.stringify({ text: word.text, type: word.type })));
-        wordsContainer.appendChild(div);
-      });
+function updateScoreDisplay() {
+  scoreDisplay.textContent = `Score: ${score}`;
+}
+
+function updateTimer() {
+  timerDisplay.textContent = `Time: ${time}s`;
+}
+
+function startGame() {
+  initializeGame();
+  score = 0;
+  time = 60;
+  updateScoreDisplay();
+  updateTimer();
+  feedback.textContent = 'Game started!';
+  startBtn.disabled = true;
+  pauseBtn.disabled = false;
+  stopBtn.disabled = false;
+
+  timer = setInterval(() => {
+    if (!isPaused) {
+      time--;
+      updateTimer();
+      if (time <= 0) stopGame();
     }
+  }, 1000);
+}
 
-    function startTimer() {
-      if (!timerRunning) {
-        timerRunning = true;
-        timer = setInterval(() => {
-          time--;
-          timerDisplay.textContent = `Time: ${time}s`;
-          if (time <= 0) {
-            clearInterval(timer);
-            feedback.textContent = `Time's up! Final score: ${score}`;
-            timerRunning = false;
-          }
-        }, 1000);
-      }
-    }
+function pauseGame() {
+  isPaused = true;
+  feedback.textContent = 'Game paused.';
+  pauseBtn.disabled = true;
+  resumeBtn.disabled = false;
+}
 
-    function pauseTimer() {
-      if (timerRunning) {
-        clearInterval(timer);
-        timerRunning = false;
-        resumeBtn.disabled = false;
-        feedback.textContent = 'Game paused.';
-      }
-    }
+function resumeGame() {
+  isPaused = false;
+  feedback.textContent = 'Game resumed.';
+  pauseBtn.disabled = false;
+  resumeBtn.disabled = true;
+}
 
-    function resumeTimer() {
-      if (!timerRunning) {
-        startTimer();
-        resumeBtn.disabled = true;
-        feedback.textContent = 'Game resumed!';
-      }
-    }
+function stopGame() {
+  clearInterval(timer);
+  timer = null;
+  isPaused = false;
+  feedback.textContent = `Game over! Final score: ${score}`;
+  startBtn.disabled = false;
+  pauseBtn.disabled = true;
+  resumeBtn.disabled = true;
+  stopBtn.disabled = true;
+}
 
-    function updateScore(isCorrect) {
-      score += isCorrect ? 10 : -5;
-      score = Math.max(0, score);
-      scoreDisplay.textContent = `Score: ${score}`;
-      feedback.textContent = isCorrect ? "Nice job!" : "Try again!";
-    }
+function handleDrop(e, zoneType) {
+  e.preventDefault();
+  const data = JSON.parse(e.dataTransfer.getData('text'));
+  const isCorrect = data.type === zoneType;
+  score += isCorrect ? 10 : -5;
+  updateScoreDisplay();
+  feedback.textContent = isCorrect ? 'Correct!' : 'Oops!';
 
-    function setupDropzone(zone, zoneId) {
-      zone.addEventListener('dragover', e => e.preventDefault());
-      zone.addEventListener('drop', e => {
-        e.preventDefault();
-        const data = JSON.parse(e.dataTransfer.getData('text'));
-        const isCorrect = (zoneId === 'abstract' && data.type === 'abstract') || (zoneId === 'concrete' && data.type === 'concrete');
-        updateScore(isCorrect);
-        const wordElem = [...wordsContainer.children].find(el => el.textContent === data.text);
-        if (wordElem) {
-          wordElem.remove();
-          const placedWord = document.createElement('div');
-          placedWord.className = 'word';
-          placedWord.textContent = data.text;
-          zone.appendChild(placedWord);
-        }
-      });
-    }
+  const wordEl = [...wordsContainer.children].find(w => w.textContent === data.text);
+  if (wordEl) wordEl.remove();
 
-    startBtn.addEventListener('click', () => {
-      setupGame();
-      startTimer();
-      startBtn.disabled = true;
-    });
+  const placed = document.createElement('div');
+  placed.className = 'word';
+  placed.textContent = data.text;
 
-    pauseBtn.addEventListener('click', pauseTimer);
-    resumeBtn.addEventListener('click', resumeTimer);
+  if (zoneType === 'abstract') abstractZone.appendChild(placed);
+  else concreteZone.appendChild(placed);
+}
 
-    setupDropzone(abstractZone, 'abstract');
-    setupDropzone(concreteZone, 'concrete');
-  </script>
+abstractZone.parentElement.addEventListener('dragover', e => e.preventDefault());
+concreteZone.parentElement.addEventListener('dragover', e => e.preventDefault());
+abstractZone.parentElement.addEventListener('drop', e => handleDrop(e, 'abstract'));
+concreteZone.parentElement.addEventListener('drop', e => handleDrop(e, 'concrete'));
+
+startBtn.addEventListener('click', startGame);
+pauseBtn.addEventListener('click', pauseGame);
+resumeBtn.addEventListener('click', resumeGame);
+stopBtn.addEventListener('click', stopGame);
+</script>
 </body>
 </html>
