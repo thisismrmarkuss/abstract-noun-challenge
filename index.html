@@ -31,7 +31,7 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       padding: 20px;
       max-height: 100%;
-      overflow: hidden;
+      overflow: auto;
     }
 
     header {
@@ -122,6 +122,14 @@
       width: 45%;
     }
 
+    .dropzone .drop-content {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
     .game-area {
       display: flex;
       justify-content: space-around;
@@ -144,6 +152,7 @@
     <div class="start-button">
       <button id="start-btn">Start Game</button>
       <button id="pause-btn">Pause Game</button>
+      <button id="resume-btn" disabled>Resume Game</button>
     </div>
 
     <div class="words-container" id="words"></div>
@@ -151,11 +160,11 @@
     <div class="game-area">
       <div class="dropzone" id="abstract">
         <h3>Abstract Nouns</h3>
-        <div id="abstract-zone"></div>
+        <div class="drop-content" id="abstract-zone"></div>
       </div>
       <div class="dropzone" id="concrete">
         <h3>Not Abstract</h3>
-        <div id="concrete-zone"></div>
+        <div class="drop-content" id="concrete-zone"></div>
       </div>
     </div>
   </div>
@@ -178,6 +187,7 @@
     const timerDisplay = document.getElementById('timer');
     const startBtn = document.getElementById('start-btn');
     const pauseBtn = document.getElementById('pause-btn');
+    const resumeBtn = document.getElementById('resume-btn');
 
     function setupGame() {
       wordsContainer.innerHTML = '';
@@ -214,7 +224,16 @@
       if (timerRunning) {
         clearInterval(timer);
         timerRunning = false;
+        resumeBtn.disabled = false;
         feedback.textContent = 'Game paused.';
+      }
+    }
+
+    function resumeTimer() {
+      if (!timerRunning) {
+        startTimer();
+        resumeBtn.disabled = true;
+        feedback.textContent = 'Game resumed!';
       }
     }
 
@@ -250,6 +269,7 @@
     });
 
     pauseBtn.addEventListener('click', pauseTimer);
+    resumeBtn.addEventListener('click', resumeTimer);
 
     setupDropzone(abstractZone, 'abstract');
     setupDropzone(concreteZone, 'concrete');
