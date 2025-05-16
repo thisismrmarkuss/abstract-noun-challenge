@@ -42,6 +42,9 @@
       font-weight: bold;
       cursor: pointer;
     }
+    .hidden {
+      display: none;
+    }
     .score-timer {
       display: flex;
       justify-content: space-between;
@@ -51,8 +54,9 @@
     .feedback {
       text-align: center;
       margin-bottom: 10px;
-      font-style: italic;
-      color: #555;
+      font-size: 18px;
+      font-weight: bold;
+      color: #3f51b5;
     }
     .words-container {
       display: flex;
@@ -105,9 +109,9 @@
   <div class="feedback" id="feedback">Click Start to begin!</div>
   <div class="controls">
     <button id="startBtn">Start</button>
-    <button id="pauseBtn" disabled>Pause</button>
-    <button id="resumeBtn" disabled>Resume</button>
-    <button id="stopBtn" disabled>Stop</button>
+    <button id="pauseBtn" class="hidden">Pause</button>
+    <button id="resumeBtn" class="hidden">Resume</button>
+    <button id="stopBtn" class="hidden">Stop</button>
   </div>
   <div class="words-container" id="words"></div>
   <div class="game-area">
@@ -175,9 +179,9 @@ function startGame() {
   updateScoreDisplay();
   updateTimer();
   feedback.textContent = 'Game started!';
-  startBtn.disabled = true;
-  pauseBtn.disabled = false;
-  stopBtn.disabled = false;
+  startBtn.classList.add('hidden');
+  pauseBtn.classList.remove('hidden');
+  stopBtn.classList.remove('hidden');
 
   timer = setInterval(() => {
     if (!isPaused) {
@@ -191,15 +195,15 @@ function startGame() {
 function pauseGame() {
   isPaused = true;
   feedback.textContent = 'Game paused.';
-  pauseBtn.disabled = true;
-  resumeBtn.disabled = false;
+  pauseBtn.classList.add('hidden');
+  resumeBtn.classList.remove('hidden');
 }
 
 function resumeGame() {
   isPaused = false;
   feedback.textContent = 'Game resumed.';
-  pauseBtn.disabled = false;
-  resumeBtn.disabled = true;
+  pauseBtn.classList.remove('hidden');
+  resumeBtn.classList.add('hidden');
 }
 
 function stopGame() {
@@ -207,10 +211,10 @@ function stopGame() {
   timer = null;
   isPaused = false;
   feedback.textContent = `Game over! Final score: ${score}`;
-  startBtn.disabled = false;
-  pauseBtn.disabled = true;
-  resumeBtn.disabled = true;
-  stopBtn.disabled = true;
+  startBtn.classList.remove('hidden');
+  pauseBtn.classList.add('hidden');
+  resumeBtn.classList.add('hidden');
+  stopBtn.classList.add('hidden');
 }
 
 function handleDrop(e, zoneType) {
@@ -219,17 +223,27 @@ function handleDrop(e, zoneType) {
   const isCorrect = data.type === zoneType;
   score += isCorrect ? 10 : -5;
   updateScoreDisplay();
-  feedback.textContent = isCorrect ? 'Correct!' : 'Oops!';
 
   const wordEl = [...wordsContainer.children].find(w => w.textContent === data.text);
   if (wordEl) wordEl.remove();
 
-  const placed = document.createElement('div');
-  placed.className = 'word';
-  placed.textContent = data.text;
-
-  if (zoneType === 'abstract') abstractZone.appendChild(placed);
-  else concreteZone.appendChild(placed);
+  if (isCorrect) {
+    feedback.textContent = '✅ Correct!';
+    const placed = document.createElement('div');
+    placed.className = 'word';
+    placed.textContent = data.text;
+    if (zoneType === 'abstract') abstractZone.appendChild(placed);
+    else concreteZone.appendChild(placed);
+  } else {
+    feedback.textContent = '❌ Try again!';
+    const retry = document.createElement('div');
+    retry.className = 'word';
+    retry.textContent = data.text;
+    retry.draggable = true;
+    retry.dataset.type = data.type;
+    retry.addEventListener('dragstart', e => e.dataTransfer.setData('text', JSON.stringify(data)));
+    wordsContainer.appendChild(retry);
+  }
 }
 
 abstractZone.parentElement.addEventListener('dragover', e => e.preventDefault());
