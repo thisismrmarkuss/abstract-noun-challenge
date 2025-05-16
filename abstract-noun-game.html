@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abstract Noun Challenge</title>
+  <style>
+    /* Basic reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    
+    body {
+      background-color: #f5f5f5;
+      color: #333;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+    
+    header {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    h1 {
+      color: #3f51b5;
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+    
+    .subtitle {
+      color: #ff9800;
+      font-size: 14px;
+    }
+    
+    .game-info {
+      background-color: #f8f8f8;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .game-area {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    @media (min-width: 768px) {
+      .game-area {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    
+    .words-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      min-height: 60px;
+    }
+    
+    .word {
+      padding: 8px 15px;
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      cursor: move;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: all 0.2s;
+      user-select: none;
+    }
+    
+    .word:hover {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      transform: translateY(-2px);
+    }
+    
+    .word.dragging {
+      opacity: 0.5;
+    }
+    
+    .word.correct {
+      background-color: #e8f0fe;
+      border-color: #3f51b5;
+    }
+    
+    .dropzone {
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      min-height: 150px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.2s;
+    }
+    
+    .abstract {
+      border-color: #3f51b5;
+    }
+    
+    .not-abstract {
+      border-color: #ff9800;
+    }
+    
+    .dropzone.drag-over {
+      background-color: rgba(63, 81, 181, 0.1);
+    }
+    
+    .dropzone-header {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #ddd;
+    }
+    
+    .abstract .dropzone-header h3 {
+      color: #3f51b5;
+    }
+    
+    .not-abstract .dropzone-header h3 {
+      color: #ff9800;
+    }
+    
+    .dropzone-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      width: 100%;
+      justify-content: center;
+    }
+    
+    .leon-mode {
+      background-color: #f8f8f8;
+      border: 1px dashed #ccc;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .leon-mode.active {
+      border-color: #ff9800;
+    }
+    
+    .feedback {
+      min-height: 50px;
+      text-align: center;
+      font-style: italic;
+      margin-bottom: 15px;
+    }
+    
+    .score {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: bold;
+      font-size: 20px;
+      color: #3f51b5;
+      background-color: rgba(63, 81, 181, 0.1);
+      padding: 8px 15px;
+      border-radius: 8px;
+    }
+    
+    .timer {
+      font-weight: bold;
+      font-size: 18px;
+    }
+    
+    .timer.critical {
+      color: #f44336;
+      animation: pulse 1s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .stats {
+      background-color: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    button {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 20px;
+      background-color: #3f51b5;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    }
+    
+    .refresh-btn {
+      background-color: #009688;
+    }
+    
+    .quit-btn {
+      background-color: #f44336;
+    }
+    
+    .game-over {
+      background-color: white;
+      border: 2px solid #3f51b5;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .game-over h2 {
+      color: #3f51b5;
+      margin-bottom: 10px;
+    }
+    
+    footer {
+      text-align: center;
+      color: #999;
+      font-size: 12px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Abstract Noun Challenge</h1>
+      <p class="subtitle">Grammar Game</p>
+    </header>
+    
+    <div id="game">
+      <!-- Game content will be populated here -->
+      <div class="timer-container">
+        <div id="timer" class="timer">Time: 60s</div>
+      </div>
+      
+      <div class="game-info">
+        <p>Drag each word into the correct category box: <strong>Abstract Noun</strong> or <strong>Not Abstract</strong>.</p>
+        <p style="font-size: 14px; margin-top: 5px;">Abstract nouns are ideas, emotions, or traits you can't touch—like justice or love. Concrete nouns are physical things you can sense—like desk or dog.</p>
+      </div>
+      
+      <div class="leon-mode" id="leon-container">
+        <h3 style="margin-bottom: 10px;">Principal Leon Mode</h3>
+        <p style="font-size: 14px; margin-bottom: 5px;">For the brave and slightly delusional. When activated, expect:</p>
+        <ul style="font-size: 13px; margin-left: 20px; margin-bottom: 10px;">
+          <li>Randomly reversed answers (yep, even when you're right)</li>
+          <li>Double score penalties or rewards</li>
+          <li>Gaslighting feedback from the depths of educational bureaucracy</li>
+        </ul>
+        <button id="leon-mode-btn">Activate Principal Leon Mode</button>
+      </div>
+      
+      <div style="display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center;">
+        <div class="score" id="score">Score: 0</div>
+        <div class="feedback" id="feedback">Drag words to categories to start!</div>
+      </div>
+      
+      <div class="words-container" id="words"></div>
+      
+      <div class="game-area">
+        <div class="dropzone abstract" id="abstract">
+          <div class="dropzone-header">
+            <h3>Abstract Noun</h3>
+            <p style="font-size: 12px; color: #666;">Ideas, emotions, concepts</p>
+          </div>
+          <div class="dropzone-items" id="abstract-items"></div>
+        </div>
+        
+        <div class="dropzone not-abstract" id="not-abstract">
+          <div class="dropzone-header">
+            <h3>Not Abstract</h3>
+            <p style="font-size: 12px; color: #666;">Physical, tangible objects</p>
+          </div>
+          <div class="dropzone-items" id="not-abstract-items"></div>
+        </div>
+      </div>
+      
+      <div class="controls">
+        <button id="refresh-btn" class="refresh-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38"></path>
+          </svg>
+          New Words
+        </button>
+        
+        <button id="quit-btn" class="quit-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="9" y1="9" x2="15" y2="15"></line>
+            <line x1="15" y1="9" x2="9" y2="15"></line>
+          </svg>
+          Quit Game
+        </button>
+      </div>
+      
+      <div id="game-over" class="game-over" style="display: none;">
+        <h2>Time's Up!</h2>
+        <p>Your final score: <span id="final-score">0</span></p>
+        <div style="margin: 15px 0;">
+          <button id="view-stats-btn">View Statistics</button>
+        </div>
+        <div id="stats" class="stats" style="display: none;">
+          <h3 style="margin-bottom: 10px;">Game Statistics</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+            <div>Total Attempts:</div>
+            <div id="total-attempts">0</div>
+            <div>Correct Answers:</div>
+            <div id="correct-answers">0</div>
+            <div>Incorrect Answers:</div>
+            <div id="incorrect-answers">0</div>
+            <div>Accuracy:</div>
+            <div id="accuracy">0%</div>
+          </div>
+        </div>
+        <button id="restart-btn">Play Again</button>
+      </div>
+    </div>
+    
+    <footer>
+      Grammar Challenge Game &copy; 2023
+    </footer>
+  </div>
+
+  <script>
+    // Lists of abstract and concrete nouns
+    const abstractWords = [
+      'Love', 'Creativity', 'Anger', 'Tragedy', 'Hope', 'Fear', 'Freedom', 
+      'Justice', 'Happiness', 'Sadness', 'Knowledge', 'Intelligence', 'Truth', 
+      'Beauty', 'Time', 'Courage', 'Pride', 'Jealousy', 'Honor', 'Success', 
+      'Friendship', 'Leadership', 'Wisdom', 'Loyalty', 'Trust', 'Faith', 
+      'Peace', 'Honesty', 'Kindness', 'Bravery'
+    ];
+    
+    const concreteWords = [
+      'Desk', 'Microwave', 'Chair', 'Dog', 'Book', 'Pen', 'Laptop', 'Window', 
+      'Tree', 'Bottle', 'Phone', 'Car', 'House', 'School', 'Teacher', 'Student', 
+      'Ball', 'Flower', 'Sun', 'Mountain', 'Computer', 'Bicycle', 'Pencil', 
+      'Camera', 'Clock', 'Shoe', 'Television', 'Guitar', 'Bird', 'Cat'
+    ];
+    
+    // Feedback messages
+    const praises = [
+      "Okay! Somebody passed 6th grade!",
+      "Correct! Mr. Markuss might actually be proud.",
+      "Ain't nobody mad at that.",
+      "Grammar genius in the making!",
+      "That's right! You're on fire!",
+      "Perfect! Keep up the good work!"
+    ];
+    
+    const roasts = [
+      "Try again, Webster.",
+      "You sure you're in the right class?",
+      "That word just sued you for defamation.",
+      "Your dictionary wants to have a word with you.",
+      "Even autocorrect couldn't save that one.",
+      "Grammar police are on their way."
+    ];
+    
+    const leonGaslight = [
+      "That may have been right... but was it ethically aligned with district policy?",
+      "Due to budget adjustments, this answer is now incorrect.",
+      "According to Principal Leon's rubric, that's a no.",
+      "Your logic has been forwarded to the Board of Confusion.",
+      "The answer was right until I changed the rules just now.",
+      "Your answer conflicts with our standardized test metrics."
+    ];
+    
+    // Game state
+    let score = 0;
+    let leonMode = false;
+    let draggableWords = [];
+    let abstractDroppedWords = [];
+    let notAbstractDroppedWords = [];
+    let timerInterval;
+    let timeRemaining = 60;
+    let isGameOver = false;
+    let gameStats = {
+      totalAttempts: 0,
+      correctAnswers: 0,
+      incorrectAnswers: 0
+    };
+    
+    // DOM elements
+    const wordsContainer = document.getElementById('words');
+    const abstractZone = document.getElementById('abstract');
+    const notAbstractZone = document.getElementById('not-abstract');
+    const abstractItems = document.getElementById('abstract-items');
+    const notAbstractItems = document.getElementById('not-abstract-items');
+    const scoreDisplay = document.getElementById('score');
+    const feedbackDisplay = document.getElementById('feedback');
+    const timerDisplay = document.getElementById('timer');
+    const leonModeBtn = document.getElementById('leon-mode-btn');
+    const leonContainer = document.getElementById('leon-container');
+    const refreshBtn = document.getElementById('refresh-btn');
+    const quitBtn = document.getElementById('quit-btn');
+    const gameOverElement = document.getElementById('game-over');
+    const finalScoreElement = document.getElementById('final-score');
+    const restartBtn = document.getElementById('restart-btn');
+    const viewStatsBtn = document.getElementById('view-stats-btn');
+    const statsElement = document.getElementById('stats');
+    const totalAttemptsElement = document.getElementById('total-attempts');
+    const correctAnswersElement = document.getElementById('correct-answers');
+    const incorrectAnswersElement = document.getElementById('incorrect-answers');
+    const accuracyElement = document.getElementById('accuracy');
+    
+    // Initialize game
+    function init() {
+      // Set up event listeners
+      leonModeBtn.addEventListener('click', toggleLeonMode);
+      refreshBtn.addEventListener('click', refreshGame);
+      quitBtn.addEventListener('click', quitGame);
+      restartBtn.addEventListener('click', restartGame);
+      viewStatsBtn.addEventListener('click', toggleStats);
+      
+      // Set up drag and drop zones
+      setupDropZones();
+      
+      // Generate initial words
+      generateWords();
+      
+      // Start timer
+      startTimer();
+    }
+    
+    // Toggle Leon mode
+    function toggleLeonMode() {
+      leonMode = !leonMode;
+      leonModeBtn.textContent = leonMode ? 'Deactivate Principal Leon Mode' : 'Activate Principal Leon Mode';
+      leonContainer.classList.toggle('active', leonMode);
+      feedbackDisplay.textContent = leonMode ? "Leon Mode Activated: Trust Nothing." : "Leon Mode Deactivated: Back to sanity.";
+    }
+    
+    // Get random words from the list
+    function getRandomWords(list, count) {
+      const shuffled = [...list].sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, count);
+    }
+    
+    // Generate new set of words
+    function generateWords() {
+      // Clear existing words
+      wordsContainer.innerHTML = '';
+      
+      // Get random words
+      const abstractWordsSelection = getRandomWords(abstractWords, 4);
+      const concreteWordsSelection = getRandomWords(concreteWords, 2);
+      
+      // Create word objects and shuffle them
+      draggableWords = [
+        ...abstractWordsSelection.map(text => ({
+          id: `word-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          text,
+          isAbstract: true,
+          isCorrect: false
+        })),
+        ...concreteWordsSelection.map(text => ({
+          id: `word-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          text,
+          isAbstract: false,
+          isCorrect: false
+        }))
+      ].sort(() => 0.5 - Math.random());
+      
+      // Create DOM elements for words
+      draggableWords.forEach(word => {
+        const wordElement = document.createElement('div');
+        wordElement.className = 'word';
+        wordElement.textContent = word.text;
+        wordElement.id = word.id;
+        wordElement.draggable = true;
+        wordElement.dataset.isAbstract = word.isAbstract;
+        
+        // Add drag events
+        wordElement.addEventListener('dragstart', handleDragStart);
+        wordElement.addEventListener('dragend', handleDragEnd);
+        
+        wordsContainer.appendChild(wordElement);
+      });
+    }
+    
+    // Handle drag start
+    function handleDragStart(e) {
+      e.dataTransfer.setData('text/plain', e.target.id);
+      e.dataTransfer.setData('word/isAbstract', e.target.dataset.isAbstract);
+      e.dataTransfer.effectAllowed = 'move';
+      
+      setTimeout(() => {
+        e.target.classList.add('dragging');
+      }, 0);
+    }
+    
+    // Handle drag end
+    function handleDragEnd(e) {
+      e.target.classList.remove('dragging');
+    }
+    
+    // Set up drop zones
+    function setupDropZones() {
+      abstractZone.addEventListener('dragover', handleDragOver);
+      abstractZone.addEventListener('dragleave', handleDragLeave);
+      abstractZone.addEventListener('drop', e => handleDrop(e, 'abstract'));
+      
+      notAbstractZone.addEventListener('dragover', handleDragOver);
+      notAbstractZone.addEventListener('dragleave', handleDragLeave);
+      notAbstractZone.addEventListener('drop', e => handleDrop(e, 'not-abstract'));
+    }
+    
+    // Handle drag over
+    function handleDragOver(e) {
+      // Prevent default to allow drop
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      
+      this.classList.add('drag-over');
+    }
+    
+    // Handle drag leave
+    function handleDragLeave(e) {
+      this.classList.remove('drag-over');
+    }
+    
+    // Handle drop
+    function handleDrop(e, targetZone) {
+      e.preventDefault();
+      
+      // Remove the drag-over class
+      e.currentTarget.classList.remove('drag-over');
+      
+      // Get the word id
+      const wordId = e.dataTransfer.getData('text/plain');
+      const wordIsAbstract = e.dataTransfer.getData('word/isAbstract') === 'true';
+      
+      // Find the word element
+      const wordElement = document.getElementById(wordId);
+      if (!wordElement) return;
+      
+      // Find the word object
+      const word = draggableWords.find(w => w.id === wordId);
+      if (!word) return;
+      
+      // Check if the word is already in either drop zone
+      const isInAbstractZone = abstractDroppedWords.some(w => w.id === wordId);
+      const isInNotAbstractZone = notAbstractDroppedWords.some(w => w.id === wordId);
+      
+      // Remove word from previous zone if it was there
+      if (isInAbstractZone) {
+        abstractDroppedWords = abstractDroppedWords.filter(w => w.id !== wordId);
+        abstractItems.removeChild(wordElement);
+      } else if (isInNotAbstractZone) {
+        notAbstractDroppedWords = notAbstractDroppedWords.filter(w => w.id !== wordId);
+        notAbstractItems.removeChild(wordElement);
+      } else {
+        // Remove from the words container if it's a new drop
+        wordsContainer.removeChild(wordElement);
+      }
+      
+      // Add the word to the appropriate drop zone
+      if (targetZone === 'abstract') {
+        abstractDroppedWords.push(word);
+        abstractItems.appendChild(wordElement);
+      } else {
+        notAbstractDroppedWords.push(word);
+        notAbstractItems.appendChild(wordElement);
+      }
+      
+      // Check if the answer is correct
+      const isCorrect = (wordIsAbstract && targetZone === 'abstract') || 
+                         (!wordIsAbstract && targetZone === 'not-abstract');
+      
+      // Leon mode randomness
+      let finalIsCorrect = isCorrect;
+      let scoreMultiplier = 1;
+      
+      if (leonMode && Math.random() < 0.4) {
+        // Randomly flip the correctness in leon mode
+        finalIsCorrect = !isCorrect;
+        scoreMultiplier = 2; // Double impact in leon mode
+      }
+      
+      // Update game stats
+      gameStats.totalAttempts++;
+      if (finalIsCorrect) {
+        gameStats.correctAnswers++;
+        score += 10 * scoreMultiplier;
+        
+        // Apply correct class to word
+        wordElement.classList.add('correct');
+        
+        // Show feedback
+        if (leonMode && !isCorrect) {
+          // Leon mode gaslighting when wrong answer is scored as correct
+          feedbackDisplay.textContent = "That's actually wrong, but district policy says it's correct. +20 points!";
+        } else {
+          feedbackDisplay.textContent = leonMode ? 
+            leonGaslight[Math.floor(Math.random() * leonGaslight.length)] :
+            praises[Math.floor(Math.random() * praises.length)];
+        }
+      } else {
+        gameStats.incorrectAnswers++;
+        score = Math.max(0, score - (5 * scoreMultiplier));
+        
+        // Show feedback
+        if (leonMode && isCorrect) {
+          // Leon mode gaslighting when right answer is scored as wrong
+          feedbackDisplay.textContent = "That's technically correct, but I don't like your attitude. -10 points!";
+        } else {
+          feedbackDisplay.textContent = leonMode ? 
+            leonGaslight[Math.floor(Math.random() * leonGaslight.length)] :
+            roasts[Math.floor(Math.random() * roasts.length)];
+        }
+      }
+      
+      // Update score display
+      scoreDisplay.textContent = `Score: ${score}`;
+      
+      // Check if all words have been categorized
+      if (abstractDroppedWords.length + notAbstractDroppedWords.length >= draggableWords.length) {
+        // Generate new words
+        setTimeout(() => {
+          generateWords();
+        }, 500);
+      }
+    }
+    
+    // Start timer
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        timeRemaining--;
+        timerDisplay.textContent = `Time: ${timeRemaining}s`;
+        
+        // Turn timer red when under 15 seconds
+        if (timeRemaining <= 15) {
+          timerDisplay.classList.add('critical');
+        }
+        
+        // Game over when time runs out
+        if (timeRemaining <= 0) {
+          endGame();
+        }
+      }, 1000);
+    }
+    
+    // Refresh with new words
+    function refreshGame() {
+      generateWords();
+    }
+    
+    // Quit game early
+    function quitGame() {
+      endGame();
+    }
+    
+    // End game
+    function endGame() {
+      clearInterval(timerInterval);
+      isGameOver = true;
+      
+      // Hide game content
+      wordsContainer.style.display = 'none';
+      abstractZone.style.display = 'none';
+      notAbstractZone.style.display = 'none';
+      leonContainer.style.display = 'none';
+      refreshBtn.style.display = 'none';
+      quitBtn.style.display = 'none';
+      
+      // Show game over screen
+      gameOverElement.style.display = 'block';
+      finalScoreElement.textContent = score;
+      
+      // Update stats
+      totalAttemptsElement.textContent = gameStats.totalAttempts;
+      correctAnswersElement.textContent = gameStats.correctAnswers;
+      incorrectAnswersElement.textContent = gameStats.incorrectAnswers;
+      
+      const accuracy = gameStats.totalAttempts > 0 ? 
+        Math.round((gameStats.correctAnswers / gameStats.totalAttempts) * 100) : 0;
+      accuracyElement.textContent = `${accuracy}%`;
+    }
+    
+    // Toggle stats view
+    function toggleStats() {
+      statsElement.style.display = statsElement.style.display === 'none' ? 'block' : 'none';
+      viewStatsBtn.textContent = statsElement.style.display === 'none' ? 'View Statistics' : 'Hide Statistics';
+    }
+    
+    // Restart game
+    function restartGame() {
+      // Reset game state
+      score = 0;
+      timeRemaining = 60;
+      isGameOver = false;
+      gameStats = {
+        totalAttempts: 0,
+        correctAnswers: 0,
+        incorrectAnswers: 0
+      };
+      
+      // Reset UI
+      scoreDisplay.textContent = `Score: ${score}`;
+      timerDisplay.textContent = `Time: ${timeRemaining}s`;
+      timerDisplay.classList.remove('critical');
+      feedbackDisplay.textContent = 'Drag words to categories to start!';
+      
+      // Clear drop zones
+      abstractItems.innerHTML = '';
+      notAbstractItems.innerHTML = '';
+      abstractDroppedWords = [];
+      notAbstractDroppedWords = [];
+      
+      // Show game elements
+      wordsContainer.style.display = 'flex';
+      abstractZone.style.display = 'flex';
+      notAbstractZone.style.display = 'flex';
+      leonContainer.style.display = 'block';
+      refreshBtn.style.display = 'inline-flex';
+      quitBtn.style.display = 'inline-flex';
+      
+      // Hide game over
+      gameOverElement.style.display = 'none';
+      statsElement.style.display = 'none';
+      viewStatsBtn.textContent = 'View Statistics';
+      
+      // Generate new words
+      generateWords();
+      
+      // Start timer
+      startTimer();
+    }
+    
+    // Initialize the game when the page loads
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
